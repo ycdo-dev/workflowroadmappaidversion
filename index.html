@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Workflow Roadmap</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .roadmap {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 80%;
+            max-width: 800px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        .project-description {
+            color: #34495e;
+            text-align: center;
+            margin-bottom: 20px;
+            font-style: italic;
+            padding: 10px;
+            border: 1px dashed #bdc3c7;
+            border-radius: 5px;
+        }
+        .task {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .task-header {
+            display: flex;
+            align-items: flex-start;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .group-header {
+            background-color: #e8f0fe;
+            border-left: 5px solid #4285f4;
+        }
+        .task-number {
+            background-color: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .task-content {
+            flex-grow: 1;
+        }
+        .task-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        .task-description {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .task-dates {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        .subtasks-container {
+            margin-left: 45px;
+            margin-top: 10px;
+        }
+        .subtask {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .subtask-title {
+            font-weight: bold;
+            color: #34495e;
+        }
+        .subtask-description {
+            color: #7f8c8d;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+        .progress-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            transition: width 0.5s ease-in-out;
+            border-radius: 10px;
+        }
+        .step-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .step-marker {
+            width: 10px;
+            height: 10px;
+            background-color: #fff;
+            border: 2px solid #3498db;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .step-marker.completed {
+            background-color: #3498db;
+        }
+        .subtask-marker {
+            width: 8px;
+            height: 8px;
+            border-width: 1px;
+        }
+        .progress-labels {
+            position: relative;
+            margin-top: 10px;
+            height: 20px;
+        }
+        .progress-labels span {
+            position: absolute;
+            font-size: 0.7em;
+            color: #7f8c8d;
+            text-align: center;
+            width: 100px;
+        }
+        .progress-percentage {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 15px;
+        }
+        .edit-buttons {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        .edit-button, .delete-button, .add-button, .print-button, .add-subtask-button, 
+        .make-group-button, .reset-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .delete-button {
+            background-color: #e74c3c;
+        }
+        .add-button, .print-button {
+            background-color: #2ecc71;
+            margin-top: 20px;
+        }
+        .print-button {
+            background-color: #078ff9;
+        }
+        .add-subtask-button {
+            background-color: #f39c12;
+        }
+        .make-group-button {
+            background-color: #16a085;
+        }
+        .edit-form {
+            display: none;
+            margin-top: 10px;
+        }
+        .edit-form input, .edit-form textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .project-dates {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .project-dates div {
+            display: flex;
+            flex-direction: column;
+        }
+        .project-dates label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        .project-dates input {
+            padding: 5px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+        }
+        .countdown-container {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+            text-align: center;
+        }
+        .countdown-title {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .countdown-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .countdown-subtitle {
+            font-size: 1em;
+            opacity: 0.8;
+        }
+
+        /* Authentication Styles */
+        .auth-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .auth-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 300px;
+        }
+        .auth-form input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .auth-form button {
+            width: 100%;
+            padding: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .subscription-banner {
+            background: #ff4757;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+        }
+        #logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        @media print {
+            body {
+                background-color: white;
+            }
+            .roadmap {
+                box-shadow: none;
+            }
+            .edit-buttons, .add-button, .print-button, .add-subtask-button, 
+            .make-group-button, .reset-button {
+                display: none;
+            }
+        }
+        @media (max-width: 600px) {
+            .roadmap {
+                width: 95%;
+                padding: 15px;
+            }
+            .project-dates {
+                flex-direction: column;
+            }
+            .project-dates div {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body oncontextmenu="return false" onkeydown="return disableCtrlKeyCombination(event);">
+    <div id="auth-container" class="auth-container">
+        <div class="auth-form">
+            <h2 id="auth-title">Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="handleAuth()">Login</button>
+            <p>Don't have an account? <a href="#" onclick="toggleAuthMode()">Register</a></p>
+        </div>
+    </div>
+    
+    <div id="subscription-banner" class="subscription-banner">
+        Your subscription has expired. Please renew to continue using the application.
+        <button onclick="handlePayment()">Renew Subscription</button>
+    </div>
+
+    <button id="logout-btn" onclick="logout()" style="display: none;">Logout</button>
+
+    <div class="roadmap" style="display: none;" id="main-content">
+        <h1 id="project-title" contenteditable="true">Project Workflow Roadmap</h1>
+        <div id="project-description" contenteditable="true" class="project-description">
+            Click to add project description...
+        </div>
+        <div class="project-dates">
+            <div>
+                <label for="start-date">Project Start Date:</label>
+                <input type="date" id="start-date">
+            </div>
+            <div>
+                <label for="end-date">Project End Date:</label>
+                <input type="date" id="end-date">
+            </div>
+        </div>
+        <div class="countdown-container">
+            <div class="countdown-title">Project Timeline</div>
+            <div id="countdown-days" class="countdown-value">-- days remaining</div>
+            <div id="countdown-percentage" class="countdown-subtitle">--% of project complete</div>
+        </div>
+        <div id="tasks-container"></div>
+        <button class="add-button" onclick="addTask()">Add New Task</button>
+        <button class="print-button" onclick="printRoadmap()">Print Roadmap</button>
+        <button class="reset-button" onclick="resetWorkflow()">Reset Workflow</button>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress"></div>
+                <div class="step-markers"></div>
+            </div>
+            <div class="progress-labels"></div>
+            <div class="progress-percentage">0% Complete</div>
+        </div>
+    </div>
+    <script>
+
+    // Global variables
+let tasks = [];
+let projectStartDate = null;
+let projectEndDate = null;
+let isLoggedIn = false;
+let isAuthMode = 'login';
+let currentUser = null;
+
+// Simulated database
+const users = JSON.parse(localStorage.getItem('users') || '{}');
+const subscriptions = JSON.parse(localStorage.getItem('subscriptions') || '{}');
+
+// Disable right-click and keyboard shortcuts
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+function disableCtrlKeyCombination(e) {
+    if (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83 || e.keyCode === 73)) {
+        return false;
+    }
+}
+
+// Authentication Functions
+function init() {
+    checkAuth();
+    if (!isLoggedIn) {
+        document.getElementById('auth-container').style.display = 'flex';
+    }
+}
+
+function checkAuth() {
+    const sessionUser = localStorage.getItem('currentUser');
+    if (sessionUser) {
+        currentUser = JSON.parse(sessionUser);
+        const subscription = subscriptions[currentUser.username];
+        
+        if (subscription && new Date(subscription.expiryDate) > new Date()) {
+            showApp();
+            isLoggedIn = true;
+        } else {
+            showSubscriptionBanner();
+        }
+    }
+}
+
+function toggleAuthMode() {
+    isAuthMode = isAuthMode === 'login' ? 'register' : 'login';
+    document.getElementById('auth-title').textContent = isAuthMode === 'login' ? 'Login' : 'Register';
+}
+
+function handleAuth() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    if (isAuthMode === 'register') {
+        if (users[username]) {
+            alert('Username already exists!');
+            return;
+        }
+        users[username] = { username, password };
+        localStorage.setItem('users', JSON.stringify(users));
+        handlePayment(username);
+    } else {
+        const user = users[username];
+        if (!user || user.password !== password) {
+            alert('Invalid credentials!');
+            return;
+        }
+        currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        checkAuth();
+    }
+}
+
+function handlePayment(username = currentUser?.username) {
+    const subscriptionDate = new Date();
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + 1);
+    
+    subscriptions[username] = {
+        startDate: subscriptionDate,
+        expiryDate: expiryDate
+    };
+    
+    localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
+    showApp();
+}
+
+function showApp() {
+    document.getElementById('auth-container').style.display = 'none';
+    document.getElementById('subscription-banner').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('logout-btn').style.display = 'block';
+    loadFromLocalStorage();
+    renderTasks();
+}
+
+function showSubscriptionBanner() {
+    document.getElementById('subscription-banner').style.display = 'block';
+    document.getElementById('main-content').style.display = 'none';
+}
+
+function logout() {
+    localStorage.removeItem('currentUser');
+    currentUser = null;
+    isLoggedIn = false;
+    document.getElementById('main-content').style.display = 'none';
+    document.getElementById('logout-btn').style.display = 'none';
+    document.getElementById('auth-container').style.display = 'flex';
+}
+
+// Task Management Functions
+function createTaskElement(task, index) {
+    const taskElement = document.createElement('div');
+    taskElement.className = 'task';
+    taskElement.innerHTML = `
+        <div class="task-header ${task.group ? 'group-header' : ''}">
+            <div class="task-number">${index + 1}</div>
+            <div class="task-content">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="checkbox-${index}" ${task.completed ? 'checked' : ''} onchange="toggleComplete(${index})">
+                    <label for="checkbox-${index}" class="task-title">${task.title}</label>
+                </div>
+                <div class="task-description">${task.description}</div>
+                <div class="task-dates">
+                    <span>Start: ${task.startDate ? task.startDate.toLocaleDateString() : 'Not set'}</span>
+                    <span>End: ${task.endDate ? task.endDate.toLocaleDateString() : 'Not set'}</span>
+                </div>
+                <div class="edit-buttons">
+                    <button class="edit-button" onclick="editTask(${index})">Edit</button>
+                    <button class="delete-button" onclick="deleteTask(${index})">Delete</button>
+                    ${task.group ? `<button class="add-subtask-button" onclick="addSubtask(${index})">Add Subtask</button>` : ''}
+                    ${!task.group ? `<button class="make-group-button" onclick="makeGroup(${index})">Make Group</button>` : ''}
+                </div>
+                <div class="edit-form" style="display: none;">
+                    <input type="text" class="edit-title" value="${task.title}">
+                    <textarea class="edit-description">${task.description}</textarea>
+                    <input type="date" class="edit-start-date" value="${task.startDate ? task.startDate.toISOString().split('T')[0] : ''}">
+                    <input type="date" class="edit-end-date" value="${task.endDate ? task.endDate.toISOString().split('T')[0] : ''}">
+                    <button onclick="saveEdit(${index})">Save</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    if (task.group && task.subtasks) {
+        const subtasksContainer = document.createElement('div');
+        subtasksContainer.className = 'subtasks-container';
+        task.subtasks.forEach((subtask, subtaskIndex) => {
+            const subtaskElement = createSubtaskElement(subtask, index, subtaskIndex);
+            subtasksContainer.appendChild(subtaskElement);
+        });
+        taskElement.appendChild(subtasksContainer);
+    }
+
+    return taskElement;
+}
+
+function createSubtaskElement(subtask, taskIndex, subtaskIndex) {
+    const subtaskElement = document.createElement('div');
+    subtaskElement.className = 'subtask';
+    subtaskElement.innerHTML = `
+        <div class="task-content">
+            <div class="checkbox-container">
+                <input type="checkbox" id="checkbox-${taskIndex}-${subtaskIndex}" 
+                    ${subtask.completed ? 'checked' : ''} 
+                    onchange="toggleSubtaskComplete(${taskIndex}, ${subtaskIndex})">
+                <label for="checkbox-${taskIndex}-${subtaskIndex}" 
+                    class="subtask-title">${subtask.title}</label>
+            </div>
+            <div class="subtask-description">${subtask.description}</div>
+            <div class="edit-buttons">
+                <button class="edit-button" onclick="editSubtask(${taskIndex}, ${subtaskIndex})">Edit</button>
+                <button class="delete-button" onclick="deleteSubtask(${taskIndex}, ${subtaskIndex})">Delete</button>
+            </div>
+            <div class="edit-form" style="display: none;">
+                <input type="text" class="edit-title" value="${subtask.title}">
+                <textarea class="edit-description">${subtask.description}</textarea>
+                <button onclick="saveSubtaskEdit(${taskIndex}, ${subtaskIndex})">Save</button>
+            </div>
+        </div>
+    `;
+    return subtaskElement;
+}
+
+function addTask() {
+    const newTask = {
+        title: "New Task",
+        description: "Description for the new task",
+        completed: false,
+        startDate: null,
+        endDate: null,
+        group: false
+    };
+    tasks.push(newTask);
+    renderTasks();
+}
+
+function editTask(index) {
+    const task = document.querySelectorAll('.task')[index];
+    const form = task.querySelector('.edit-form');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveEdit(index) {
+    const task = document.querySelectorAll('.task')[index];
+    const title = task.querySelector('.edit-title').value;
+    const description = task.querySelector('.edit-description').value;
+    const startDate = task.querySelector('.edit-start-date').value;
+    const endDate = task.querySelector('.edit-end-date').value;
+
+    tasks[index] = {
+        ...tasks[index],
+        title,
+        description,
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null
+    };
+    renderTasks();
+}
+
+function deleteTask(index) {
+    tasks.splice(index, 1);
+    renderTasks();
+}
+
+function makeGroup(index) {
+    tasks[index].group = true;
+    tasks[index].subtasks = [];
+    renderTasks();
+}
+
+function addSubtask(index) {
+    if (!tasks[index].subtasks) {
+        tasks[index].subtasks = [];
+    }
+    tasks[index].subtasks.push({
+        title: "New Subtask",
+        description: "Description for the new subtask",
+        completed: false
+    });
+    renderTasks();
+}
+
+function editSubtask(taskIndex, subtaskIndex) {
+    const task = document.querySelectorAll('.task')[taskIndex];
+    const subtask = task.querySelectorAll('.subtask')[subtaskIndex];
+    const form = subtask.querySelector('.edit-form');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveSubtaskEdit(taskIndex, subtaskIndex) {
+    const task = document.querySelectorAll('.task')[taskIndex];
+    const subtask = task.querySelectorAll('.subtask')[subtaskIndex];
+    const title = subtask.querySelector('.edit-title').value;
+    const description = subtask.querySelector('.edit-description').value;
+    
+    tasks[taskIndex].subtasks[subtaskIndex] = {
+        ...tasks[taskIndex].subtasks[subtaskIndex],
+        title,
+        description
+    };
+    renderTasks();
+}
+
+function deleteSubtask(taskIndex, subtaskIndex) {
+    tasks[taskIndex].subtasks.splice(subtaskIndex, 1);
+    renderTasks();
+}
+
+// Progress and Storage Functions
+function loadFromLocalStorage() {
+    if (!currentUser) return;
+    
+    const userTasks = localStorage.getItem(`tasks_${currentUser.username}`);
+    if (userTasks) {
+        tasks = JSON.parse(userTasks);
+        tasks.forEach(task => {
+            if (task.startDate) task.startDate = new Date(task.startDate);
+            if (task.endDate) task.endDate = new Date(task.endDate);
+        });
+    }
+
+    projectStartDate = localStorage.getItem(`projectStartDate_${currentUser.username}`);
+    if (projectStartDate) {
+        projectStartDate = new Date(projectStartDate);
+        document.getElementById('start-date').value = projectStartDate.toISOString().split('T')[0];
+    }
+
+    projectEndDate = localStorage.getItem(`projectEndDate_${currentUser.username}`);
+    if (projectEndDate) {
+        projectEndDate = new Date(projectEndDate);
+        document.getElementById('end-date').value = projectEndDate.toISOString().split('T')[0];
+    }
+}
+
+function saveToLocalStorage() {
+    if (!currentUser) return;
+    
+    localStorage.setItem(`tasks_${currentUser.username}`, JSON.stringify(tasks));
+    if (projectStartDate) {
+        localStorage.setItem(`projectStartDate_${currentUser.username}`, projectStartDate.toISOString());
+    }
+    if (projectEndDate) {
+        localStorage.setItem(`projectEndDate_${currentUser.username}`, projectEndDate.toISOString());
+    }
+}
+
+function renderTasks() {
+    const container = document.getElementById('tasks-container');
+    container.innerHTML = '';
+    tasks.forEach((task, index) => {
+        const taskElement = createTaskElement(task, index);
+        container.appendChild(taskElement);
+    });
+    updateProgress();
+    animateTasks();
+    saveToLocalStorage();
+}
+
+function toggleComplete(index) {
+    tasks[index].completed = !tasks[index].completed;
+    updateProgress();
+    saveToLocalStorage();
+}
+
+function toggleSubtaskComplete(taskIndex, subtaskIndex) {
+    tasks[taskIndex].subtasks[subtaskIndex].completed = !tasks[taskIndex].subtasks[subtaskIndex].completed;
+    updateProgress();
+    saveToLocalStorage();
+}
+
+function updateProgress() {
+    const totalTasks = tasks.reduce((total, task) => {
+        return total + 1 + (task.subtasks ? task.subtasks.length : 0);
+    }, 0);
+    
+    const completedTasks = tasks.reduce((total, task) => {
+        return total + (task.completed ? 1 : 0) + 
+            (task.subtasks ? task.subtasks.filter(subtask => subtask.completed).length : 0);
+    }, 0);
+    
+    const progressPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+    
+    document.querySelector('.progress').style.width = `${progressPercentage}%`;
+    document.querySelector('.progress-percentage').textContent = `${Math.round(progressPercentage)}% Complete`;
+    
+    updateStepMarkers();
+    updateProgressLabels();
+    updateCountdown(progressPercentage);
+}
+
+function updateStepMarkers() {
+    const stepMarkers = document.querySelector('.step-markers');
+    stepMarkers.innerHTML = '';
+    
+    const totalTasks = tasks.reduce((total, task) => {
+        return total + 1 + (task.subtasks ? task.subtasks.length : 0);
+    }, 0);
+    
+    if (totalTasks === 0) return;
+    
+    let completedTasks = 0;
+    tasks.forEach((task) => {
+        const marker = document.createElement('div');
+        marker.className = `step-marker ${task.completed ? 'completed' : ''}`;
+        marker.style.left = `${(completedTasks / (totalTasks - 1)) * 100}%`;
+        stepMarkers.appendChild(marker);
+        completedTasks++;
+
+        if (task.subtasks) {
+            task.subtasks.forEach((subtask) => {
+                const subtaskMarker = document.createElement('div');
+                subtaskMarker.className = `step-marker subtask-marker ${subtask.completed ? 'completed' : ''}`;
+                subtaskMarker.style.left = `${(completedTasks / (totalTasks - 1)) * 100}%`;
+                stepMarkers.appendChild(subtaskMarker);
+                completedTasks++;
+            });
+        }
+    });
+}
+
+function updateProgressLabels() {
+    const progressLabels = document.querySelector('.progress-labels');
+    progressLabels.innerHTML = '';
+    
+    const totalTasks = tasks.reduce((total, task) => {
+        return total + 1 + (task.subtasks ? task.subtasks.length : 0);
+    }, 0);
+    
+    if (totalTasks === 0) return;
+    
+    let currentTask = 0;
+    tasks.forEach((task, taskIndex) => {
+        const label = document.createElement('span');
+        label.textContent = `Task ${taskIndex + 1}`;
+        label.style.left = `${(currentTask / (totalTasks - 1)) * 100}%`;
+        label.style.transform = 'translateX(-50%)';
+        progressLabels.appendChild(label);
+        currentTask++;
+
+        if (task.subtasks) {
+            task.subtasks.forEach((subtask, subtaskIndex) => {
+                const subtaskLabel = document.createElement('span');
+                subtaskLabel.textContent = `Subtask ${subtaskIndex + 1}`;
+                subtaskLabel.style.left = `${(currentTask / (totalTasks - 1)) * 100}%`;
+                subtaskLabel.style.transform = 'translateX(-50%)';
+                progressLabels.appendChild(subtaskLabel);
+                currentTask++;
+            });
+        }
+    });
+}
+
+function updateProjectDates() {
+    projectStartDate = new Date(document.getElementById('start-date').value);
+    projectEndDate = new Date(document.getElementById('end-date').value);
+    updateProgress();
+    saveToLocalStorage();
+}
+
+function updateCountdown(progressPercentage) {
+    const countdownDaysElement = document.getElementById('countdown-days');
+    const countdownPercentageElement = document.getElementById('countdown-percentage');
+    
+    if (projectStartDate && projectEndDate) {
+        const now = new Date();
+        const remainingTime = projectEndDate - now;
+        
+        if (remainingTime > 0) {
+            const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+            countdownDaysElement.textContent = `${days} days remaining`;
+            countdownPercentageElement.textContent = `${Math.round(progressPercentage)}% of project complete`;
+        } else {
+            countdownDaysElement.textContent = "Project deadline has passed";
+            countdownPercentageElement.textContent = "Project ended";
+        }
+    }
+}
+
+function animateTasks() {
+    gsap.to('.task', {
+        opacity: 1,
+        y: 0,
+        stagger: 0.1,
+        ease: "power2.out",
+        duration: 0.5
+    });
+}
+
+function printRoadmap() {
+    window.print();
+}
+
+function resetWorkflow() {
+    if (confirm("Are you sure you want to reset the workflow? This will delete all tasks and reset the project details.")) {
+        tasks = [];
+        projectStartDate = null;
+        projectEndDate = null;
+        document.getElementById('start-date').value = '';
+        document.getElementById('end-date').value = '';
+        document.getElementById('project-title').textContent = 'Project Workflow Roadmap';
+        document.getElementById('project-description').textContent = 'Click to add project description...';
+        renderTasks();
+        saveToLocalStorage();
+    }
+}
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+    init();
+    document.getElementById('start-date').addEventListener('change', updateProjectDates);
+    document.getElementById('end-date').addEventListener('change', updateProjectDates);
+    document.getElementById('project-title').addEventListener('blur', saveToLocalStorage);
+    document.getElementById('project-description').addEventListener('blur', saveToLocalStorage);
+    setInterval(updateProgress, 1000 * 60 * 60); // Update progress every hour
+});
+</script>
+</body>
+</html>
